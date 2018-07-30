@@ -1,56 +1,46 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-
 Parameters:
   VerificationToken:
-    Description: Verification token from Slack app settings
     Type: String
-    NoEcho: true
-    
   AccessToken:
-    Description: OAuth access token from Slack app settings
     Type: String
-    NoEcho: true
-
 Resources:
   HotdogDetectorAPI:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
       DefinitionBody:
-        swagger: "2.0"
+        swagger: '2.0'
         info:
-          version: "2017-06-11T02:20:25Z"
+          version: 2017-06-11T02:20:25Z
           title: !Ref AWS::StackName
-        basePath: "/Prod"
+        basePath: /Prod
         schemes:
-        - "https"
+          - https
         paths:
           /:
             post:
               produces:
-              - "application/json"
+                - application/json
               responses:
-                "200":
-                  description: "200 response"
+                '200':
+                  description: 200 response
                   schema:
-                    $ref: "#/definitions/Empty"
+                    $ref: '#/definitions/Empty'
               x-amazon-apigateway-integration:
                 responses:
                   default:
-                    statusCode: "200"
-                uri: !Sub |-
-                  arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HotdogDetectorFunction.Arn}/invocations
-                passthroughBehavior: "when_no_match"
-                httpMethod: "POST"
-                contentHandling: "CONVERT_TO_TEXT"
-                type: "aws"
+                    statusCode: '200'
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HotdogDetectorFunction.Arn}/invocations
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+                type: aws
         definitions:
           Empty:
-            type: "object"
-            title: "Empty Schema"
-
-
+            type: object
+            title: Empty Schema
   HotdogDetectorFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -69,11 +59,10 @@ Resources:
             Path: /
             Method: post
             RestApiId: !Ref HotdogDetectorAPI
-      Policies: 
-      - RekognitionLabelsPolicy: {}
-
+      Policies:
+        - RekognitionLabelsPolicy: {}
+      MemorySize: 128
 Outputs:
   RequestURL:
     Description: Prod URL for API to use as Request URL for Slack app
-    Value: !Sub |-
-       https://${HotdogDetectorAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+    Value: !Sub https://${HotdogDetectorAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/
